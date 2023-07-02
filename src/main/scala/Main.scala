@@ -22,12 +22,11 @@ case class Mower(
 object Mower {
 
   def executeInstruction(mower: Mower, instruction: Char): Either[InstructionError, Mower] = {
-    val updatedMower = instruction match {
-      case 'D' | 'G' => turn (mower, instruction)
-      case 'A' => moveForward(mower)
+    instruction match {
+      case 'D' | 'G' => Right(turn (mower, instruction).map(_.copy())).flatten
+      case 'A' => Right(moveForward(mower).map(_.copy())).flatten
       case _ => Left(InstructionError("Invalid Instruction", instruction.toString))
     }
-    updatedMower.map(_.copy())
   }
 
   private def turn(mower: Mower, direction: Char): Either[InstructionError, Mower] = direction match {
@@ -71,14 +70,16 @@ object Main extends App {
 //      |3 3 E
 //      |AADAADADDA""".stripMargin
   val path = "../ressources/mower.txt"
-  val lines = readFile(path) match {
-    case Success(listString : String) => listString
-    case Failure(e) =>
-      println("Erreur de lecture du fichier.")
-      ""
-  }
+  val lines = readFile(path)=
+    lines match {
+      case Success(listString: String) => listString
+      case Failure(e) =>
+        println("Erreur de lecture du fichier.")
+        List.empty[String]
+    }
 
-  val lawn = parseLawnCoordinates(lines.head) match {
+  val listLine = lines.split("\n").toList
+  val lawn = parseLawnCoordinates(listLine.head) match {
     case Success(lawnObj) => lawnObj
     case Failure(e) =>
       println("Erreur de parsing des coordonnées de la pelouse.")
@@ -96,9 +97,9 @@ object Main extends App {
 
   println(mowerList)
 
-  def readFile(pathFile: String): Try[String] = Try {
+  def readFile(pathFile: String): Try[List[String]] = Try {
     val file = File("ressources/mower.txt")
-    file.contentAsString
+    file.lines.toList
   }
 
   def readFile(pathFile : String):Try[String] = Try{
