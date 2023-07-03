@@ -11,7 +11,38 @@ case class InstructionError(message: String, orientation: String) extends Error
 
 case class Position(x: Int, y: Int)
 
-case class Lawn(coordinates: Position)
+class FileParser(){
+
+  def parseLawnCoordinates(coordinates: String): Try[Lawn] = Try {
+    val parsedLine = coordinates.split(" ").map((x: String) => x.toInt).toList
+    new Lawn(Position(parsedLine.head, parsedLine.tail.head))
+  }
+
+  def parseMowers(lines: List[String]): Try[List[Mower]] = Try {
+    lines.grouped(2).map(parseMower).toList
+  }
+
+  def parseMower(line: List[String]): Mower = {
+    val initialPosition = line.head.split(" ").toList
+    val x = initialPosition.head.toInt
+    val y = initialPosition.tail.head.toInt
+    val orientation = initialPosition(2).head
+    Mower(
+      Position(x, y),
+      orientation,
+      line(1)
+    )
+  }
+}
+
+ class Lawn(coordinates: Position,mowers : List[Mower] = Nil){
+
+
+   def isInsideLawn(position: Position): Boolean =
+     position.x >= 0 && position.x <= coordinates.x &&
+       position.y >= 0 && position.y <= coordinates.y
+
+ }
 
 case class Mower(
                   position: Position,
@@ -63,20 +94,16 @@ object Mower {
 }
 
 object Main extends App {
-//  val inputContent =
-//    """5 5
-//      |1 2 N
-//      |GAGAGAGAA
-//      |3 3 E
-//      |AADAADADDA""".stripMargin
+
+  val fileParser: FileParser = new FileParser
   val path = "../ressources/mower.txt"
-  val lines = readFile(path)=
-    lines match {
-      case Success(listString: String) => listString
-      case Failure(e) =>
-        println("Erreur de lecture du fichier.")
-        List.empty[String]
-    }
+
+    val lines = getContentFile(path)
+  if(lines.isSuccess){
+
+  }else{
+
+  }
 
   val listLine = lines.split("\n").toList
   val lawn = parseLawnCoordinates(listLine.head) match {
@@ -93,41 +120,11 @@ object Main extends App {
       println("Erreur de parsing des coordonnées des tondeuses.")
       Failure(e)
   }
-
-
   println(mowerList)
 
-  def readFile(pathFile: String): Try[List[String]] = Try {
-    val file = File("ressources/mower.txt")
-    file.lines.toList
-  }
 
-  def readFile(pathFile : String):Try[String] = Try{
-    val file = File("ressources/mower.txt")
-    file.lines.toString()
+  def getContentFile(path:String): Try[String] = try {
+    val file = File(path)
+    Try(file.lines.toString())
   }
-
-  def parseLawnCoordinates(coordinates: String): Try[Lawn] = Try {
-    val parsedLine = coordinates.split(" ").map((x: String) => x.toInt).toList
-    Lawn(Position(parsedLine.head, parsedLine.tail.head))
-  }
-
-  def parseMowers(lines: List[String]): Try[List[Mower]] = Try {
-    lines.grouped(2).map(parseMower).toList
-  }
-
-  def parseMower(line: List[String]): Mower = {
-    val initialPosition = line.head.split(" ").toList
-    val x = initialPosition.head.toInt
-    val y = initialPosition.tail.head.toInt
-    val orientation = initialPosition(2).head
-    Mower(
-      Position(x, y),
-      orientation,
-      line(1)
-    )
-  }
-  def isInsideLawn(position: Position, lawn: Lawn): Boolean =
-    position.x >= 0 && position.x <= lawn.coordinates.x &&
-      position.y >= 0 && position.y <= lawn.coordinates.y
 }
