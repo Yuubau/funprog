@@ -1,6 +1,5 @@
 import better.files.File
-import classes.LawnParser
-import classes.Lawn
+import classes.{Lawn, LawnParser}
 import errors._
 
 import scala.util.{Failure, Success, Try}
@@ -10,23 +9,35 @@ object Main extends App {
   parseLawn()
   def parseLawn(): Unit = {
     val lawnParser: LawnParser = new LawnParser
-    val path = "../ressources/mower.txt"
-
-    val lines: Try[Option[String]] = getContentFile(path)
-    val lawn: Try[Lawn] = lines match {
-      case Success(content) =>
-        content match {
-          case Some(res) =>
-            lawnParser.parseLawn(res) match {
-              case Some(lawn) => Success(lawn)
-              case None =>
-                Failure(ParsingError("erreur de synthaxe dans le fichier"))
-            }
-          case None => Failure(OpenFileError("fichier vide", path))
+    // Creating a File object
+    val file = File("mower.txt")
+    if(!file.exists) {
+      println("Imposible d'ouvrir le fichier")
+    } else {
+      val lines: Try[Option[String]] = Success(Some(file.contentAsString))
+      val Tlawn: Try[Lawn] = lines match {
+        case Success(content) =>
+          content match {
+            case Some(res) =>
+              lawnParser.parseLawn(res) match {
+                case Some(lawn) => Success(lawn)
+                case None =>
+                  Failure(ParsingError("erreur de synthaxe dans le fichier"))
+              }
+            case None => Failure(OpenFileError("fichier vide", file.path.toString))
+          }
+        case Failure(e) => Failure(e)
+      }
+      println(Tlawn)
+      Tlawn match {
+        case Success(lawn) => lawn.execMowers() match {
+          case Right(value) => println(value)
+          case Left(value)=>println(value)
         }
-      case Failure(_) => Failure(OpenFileError("fichier introuvable", path))
+        case Failure(exception) => println(exception)
+      }
     }
-    println(lawn)
+
   }
 
   def getContentFile(path: String): Try[Option[String]] = {

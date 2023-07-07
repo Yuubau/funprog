@@ -2,6 +2,8 @@ package classes
 
 import errors.InstructionError
 
+
+
 case class Mower(
     position: Position,
     orientation: Char,
@@ -10,21 +12,23 @@ case class Mower(
 
 object Mower {
 
-  def executeInstructions(mower: Mower): Either[InstructionError, Mower] = {
+
+  def executeInstructions(mower: Mower,dimensions: Position ): Either[InstructionError, Mower] = {
     mower.instructions.foldLeft[Either[InstructionError, Mower]](Right(mower)) {
       (mowerResult, instruction) =>
         mowerResult.flatMap { currentMower =>
-          executeInstruction(currentMower, instruction)
+          executeInstruction(currentMower, instruction,dimensions)
         }
     }
   }
 
   def executeInstruction(
       mower: Mower,
-      instruction: Char): Either[InstructionError, Mower] = {
+      instruction: Char,
+      dimension:Position): Either[InstructionError, Mower] = {
     instruction match {
       case 'D' | 'G' => Right(turn(mower, instruction).map(_.copy())).flatten
-      case 'A'       => Right(moveForward(mower).map(_.copy())).flatten
+      case 'A'       => Right(moveForward(mower,dimension).map(_.copy())).flatten
       case _ =>
         Left(InstructionError("Invalid Instruction", instruction.toString))
     }
@@ -60,36 +64,25 @@ object Mower {
     case _ => Left(InstructionError("Invalid Direction", direction.toString))
   }
 
-  private def moveForward(mower: Mower): Either[InstructionError, Mower] = {
-    mower.orientation match {
-      case 'N' =>
-        Right(
-          mower.copy(position =
-            Position(mower.position.x, mower.position.y + 1)
-          )
-        )
-      case 'E' =>
-        Right(
-          mower.copy(position =
-            Position(mower.position.x + 1, mower.position.y)
-          )
-        )
-      case 'S' =>
-        Right(
-          mower.copy(position =
-            Position(mower.position.x, mower.position.y - 1)
-          )
-        )
-      case 'W' =>
-        Right(
-          mower.copy(position =
-            Position(mower.position.x - 1, mower.position.y)
-          )
-        )
-      case _ =>
-        Left(
-          InstructionError("Invalid Orientation", mower.orientation.toString)
-        )
+  private def moveForward(mower: Mower,dimension : Position): Either[InstructionError, Mower] = {
+    val newPosition: Either[InstructionError, Position] = mower.orientation match {
+      case 'N' => Right(Position(mower.position.x, mower.position.y + 1))
+      case 'E' => Right(Position(mower.position.x + 1, mower.position.y))
+      case 'S' => Right(Position(mower.position.x, mower.position.y - 1))
+      case 'W' => Right(Position(mower.position.x - 1, mower.position.y))
+      case _ => Left(InstructionError("Invalid Orientation", mower.orientation.toString))
+    }
+    newPosition match {
+      case Right(position : Position) =>
+        if (isInsideLawn(position, dimension)) {
+          Right(Mower(position = position, orientation = mower.orientation, instructions = mower.instructions))
+        }else{
+          Right(mower)
+        }
+      case _ => Left(InstructionError("Invalid Position", newPosition.toString))
     }
   }
+  def isInsideLawn(position: Position, dimensions: Position): Boolean =
+    position.x >= 0 && position.x <= dimensions.x &&
+      position.y >= 0 && position.y <= dimensions.y
 }

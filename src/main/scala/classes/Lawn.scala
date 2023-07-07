@@ -1,15 +1,22 @@
 package classes
 
-case class Lawn(dimensions: Position, mowers: List[Mower]) {
+import errors.InstructionError
 
-//  def execMowers(): Option[Lawn] = {
-//    val updatedMowers = mowers.flatMap { mower =>
-//      executeAllInstructions(mower, mower.instructions)
-//    }
-//  }
+case class Lawn( dimensions: Position, mowers: List[Mower]) {
 
-  def isInsideLawn(position: Position): Boolean =
-    position.x >= 0 && position.x <= dimensions.x &&
-      position.y >= 0 && position.y <= dimensions.y
+def execMowers(): Either[List[InstructionError], Lawn] = {
+val updatedMowers: List[Either[InstructionError, Mower]] = mowers.map(mower => Mower.executeInstructions(mower,dimensions))
+
+  if (updatedMowers.exists(_.isLeft)) {
+    val errors = updatedMowers.collect { case Left(error) => error }
+    Left(errors)
+  } else {
+    val newMowers = updatedMowers.collect { case Right(value) => value }
+    Right(Lawn(dimensions, newMowers))
+  }
+}
+
+
+
 
 }
