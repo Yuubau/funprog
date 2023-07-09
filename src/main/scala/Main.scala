@@ -1,4 +1,5 @@
 import better.files.File
+import classes.writer.{CsvWriter, JsonWriter, YamlWriter}
 import classes.{Lawn, LawnParser}
 import errors._
 
@@ -6,11 +7,15 @@ import scala.util.{Failure, Success, Try}
 
 object Main extends App {
 
+  val jsonWriter: Option[JsonWriter] = if (AppConfiguration.hasJsonOutput) Some(JsonWriter(AppConfiguration.getJsonOutputPath)) else None
+  val csvWriter: Option[CsvWriter] = if (AppConfiguration.hasCsvOutput) Some(CsvWriter(AppConfiguration.getCsvOutputPath)) else None
+  val yamlWriter: Option[YamlWriter] = if (AppConfiguration.hasYamlOutput) Some(YamlWriter(AppConfiguration.getYamlOutputPath)) else None
+
   parseLawn()
   def parseLawn(): Unit = {
     val lawnParser: LawnParser = new LawnParser
     // Creating a File object
-    val file = File("mower.txt")
+    val file = File(AppConfiguration.getInputFileName)
     if(!file.exists) {
       println("Imposible d'ouvrir le fichier")
     } else {
@@ -32,7 +37,7 @@ object Main extends App {
       Tlawn match {
         case Success(lawn) => lawn.execMowers() match {
           case Right(value) => println(value)
-          case Left(value)=>println(value)
+          case Left(value) => println(value)
         }
         case Failure(exception) => println(exception)
       }
