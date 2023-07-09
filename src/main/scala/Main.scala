@@ -1,5 +1,5 @@
 import better.files.File
-import classes.writer.{CsvWriter, JsonWriter, YamlWriter}
+//import classes.writer.{CsvWriter, JsonWriter, YamlWriter}
 import classes.{Lawn, LawnParser}
 import errors._
 
@@ -7,15 +7,21 @@ import scala.util.{Failure, Success, Try}
 
 object Main extends App {
 
-  val jsonWriter: Option[JsonWriter] = if (AppConfiguration.hasJsonOutput) Some(JsonWriter(AppConfiguration.getJsonOutputPath)) else None
-  val csvWriter: Option[CsvWriter] = if (AppConfiguration.hasCsvOutput) Some(CsvWriter(AppConfiguration.getCsvOutputPath)) else None
-  val yamlWriter: Option[YamlWriter] = if (AppConfiguration.hasYamlOutput) Some(YamlWriter(AppConfiguration.getYamlOutputPath)) else None
+  val inputFilePath: Try[String] = AppConfiguration.getInputFileName
 
-  parseLawn()
-  def parseLawn(): Unit = {
+  inputFilePath match {
+    case Success(filePath) => parseLawn(filePath)
+    case Failure(error) => println(error.getMessage)
+  }
+
+  def parseLawn(filePath: String): Unit = {
+    //val jsonWriter: Option[JsonWriter] = if (AppConfiguration.hasJsonOutput) Some(JsonWriter(AppConfiguration.getJsonOutputPath)) else None
+    //val csvWriter: Option[CsvWriter] = if (AppConfiguration.hasCsvOutput) Some(CsvWriter(AppConfiguration.getCsvOutputPath)) else None
+    //val yamlWriter: Option[YamlWriter] = if (AppConfiguration.hasYamlOutput) Some(YamlWriter(AppConfiguration.getYamlOutputPath)) else None
+
     val lawnParser: LawnParser = new LawnParser
     // Creating a File object
-    val file = File(AppConfiguration.getInputFileName)
+    val file = File(filePath)
     if(!file.exists) {
       println("Imposible d'ouvrir le fichier")
     } else {
