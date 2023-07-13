@@ -1,8 +1,8 @@
-package classes
-import classes.domain.{Lawn, Mower, Position}
-import classes.domain.Mower.isInsideLawn
+package classes.parser
 
-import scala.collection.immutable.List
+import classes.domain.Mower.isInsideLawn
+import classes.domain.{Lawn, Mower, Position}
+
 import scala.util.{Failure, Success, Try}
 
 class LawnParser() {

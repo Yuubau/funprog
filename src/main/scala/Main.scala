@@ -1,8 +1,8 @@
 import better.files.File
 import classes.conf.AppConfiguration
 import classes.writer.WriterController
-import classes.LawnParser
 import classes.domain.Lawn
+import classes.parser.LawnParser
 import errors._
 
 import scala.util.{Failure, Success, Try}
