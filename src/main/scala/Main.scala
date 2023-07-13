@@ -17,20 +17,15 @@ object Main extends App {
     inputFilePath match {
       case Success(filePath) => parseLawn(filePath)
       case Failure(error) => {
-        println(error.getMessage)
+        ErrorLogger.log(error)
         Failure(error)
       }
     }
   }
 
   Tlawn match {
-    case Success(lawn) => {
-      lawn.execMowers() match {
-        case Right(value) => println(value)
-        case Left(value) => println(value)
-      }
-    }
-    case Failure(exception) => println(exception)
+    case Success(lawn) => lawn.execMowers()
+    case Failure(exception) => ErrorLogger.log(exception)
   }
 
   def parseLawn(filePath: String): Try[Lawn] = {
