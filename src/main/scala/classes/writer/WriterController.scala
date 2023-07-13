@@ -1,7 +1,7 @@
 package classes.writer
 
-import classes.conf.AppConfiguration
 import classes.domain.LawnHistory
+import conf.AppConfiguration
 import errors.ErrorLogger
 
 import scala.util.{Failure, Success}
