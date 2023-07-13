@@ -1,32 +1,49 @@
 import better.files.File
-//import classes.writer.{CsvWriter, JsonWriter, YamlWriter}
-import classes.{Lawn, LawnParser}
+import classes.conf.AppConfiguration
+import classes.writer.WriterController
+import classes.LawnParser
+import classes.domain.Lawn
 import errors._
 
 import scala.util.{Failure, Success, Try}
 
 object Main extends App {
 
+  WriterController.initWriters()
+
   val inputFilePath: Try[String] = AppConfiguration.getInputFileName
 
-  inputFilePath match {
-    case Success(filePath) => parseLawn(filePath)
-    case Failure(error) => println(error.getMessage)
+  val Tlawn: Try[Lawn] = {
+    inputFilePath match {
+      case Success(filePath) => parseLawn(filePath)
+      case Failure(error) => {
+        println(error.getMessage)
+        Failure(error)
+      }
+    }
   }
 
-  def parseLawn(filePath: String): Unit = {
-    //val jsonWriter: Option[JsonWriter] = if (AppConfiguration.hasJsonOutput) Some(JsonWriter(AppConfiguration.getJsonOutputPath)) else None
-    //val csvWriter: Option[CsvWriter] = if (AppConfiguration.hasCsvOutput) Some(CsvWriter(AppConfiguration.getCsvOutputPath)) else None
-    //val yamlWriter: Option[YamlWriter] = if (AppConfiguration.hasYamlOutput) Some(YamlWriter(AppConfiguration.getYamlOutputPath)) else None
+  Tlawn match {
+    case Success(lawn) => {
+      lawn.execMowers() match {
+        case Right(value) => println(value)
+        case Left(value) => println(value)
+      }
+    }
+    case Failure(exception) => println(exception)
+  }
+
+  def parseLawn(filePath: String): Try[Lawn] = {
 
     val lawnParser: LawnParser = new LawnParser
     // Creating a File object
     val file = File(filePath)
     if(!file.exists) {
-      println("Imposible d'ouvrir le fichier")
-    } else {
+      Failure(OpenFileError("Imposible d'ouvrir le fichier", filePath))
+    }
+    else {
       val lines: Try[Option[String]] = Success(Some(file.contentAsString))
-      val Tlawn: Try[Lawn] = lines match {
+      lines match {
         case Success(content) =>
           content match {
             case Some(res) =>
@@ -38,14 +55,6 @@ object Main extends App {
             case None => Failure(OpenFileError("fichier vide", file.path.toString))
           }
         case Failure(e) => Failure(e)
-      }
-      println(Tlawn)
-      Tlawn match {
-        case Success(lawn) => lawn.execMowers() match {
-          case Right(value) => println(value)
-          case Left(value) => println(value)
-        }
-        case Failure(exception) => println(exception)
       }
     }
 

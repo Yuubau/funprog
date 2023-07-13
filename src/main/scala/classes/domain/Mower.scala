@@ -1,7 +1,7 @@
-package classes
+package classes.domain
 
 import errors.InstructionError
-
+import play.api.libs.json.{JsObject, Json, Writes}
 
 
 case class Mower(
@@ -12,8 +12,7 @@ case class Mower(
 
 object Mower {
 
-
-  def executeInstructions(mower: Mower,dimensions: Position ): Either[InstructionError, Mower] = {
+  def executeInstructions(mower: Mower, dimensions: Position ): Either[InstructionError, Mower] = {
     mower.instructions.foldLeft[Either[InstructionError, Mower]](Right(mower)) {
       (mowerResult, instruction) =>
         mowerResult.flatMap { currentMower =>
@@ -22,7 +21,7 @@ object Mower {
     }
   }
 
-  def executeInstruction(
+  private def executeInstruction(
       mower: Mower,
       instruction: Char,
       dimension:Position): Either[InstructionError, Mower] = {
@@ -82,7 +81,17 @@ object Mower {
       case _ => Left(InstructionError("Invalid Position", newPosition.toString))
     }
   }
+
   def isInsideLawn(position: Position, dimensions: Position): Boolean =
     position.x >= 0 && position.x <= dimensions.x &&
       position.y >= 0 && position.y <= dimensions.y
+
+  implicit val mowerWrites: Writes[Mower] = new Writes[Mower] {
+    def writes(mower: Mower): JsObject = Json.obj(
+      "point" -> mower.position,
+      "orientation" -> mower.orientation.toString
+    )
+  }
 }
+
+

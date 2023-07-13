@@ -1,3 +1,5 @@
+package classes.conf
+
 import com.typesafe.config.{Config, ConfigFactory}
 import errors.ConfigError
 

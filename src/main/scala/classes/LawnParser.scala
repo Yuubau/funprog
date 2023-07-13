@@ -1,5 +1,6 @@
 package classes
-import classes.Mower.isInsideLawn
+import classes.domain.{Lawn, Mower, Position}
+import classes.domain.Mower.isInsideLawn
 
 import scala.collection.immutable.List
 import scala.util.{Failure, Success, Try}
