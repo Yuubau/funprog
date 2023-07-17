@@ -1,6 +1,7 @@
 import better.files.File
 import classes.writer.WriterController
 import classes.domain.Lawn
+import classes.logger.Logger
 import classes.parser.LawnParser
 import conf.AppConfiguration
 import errors._
@@ -17,15 +18,24 @@ object Main extends App {
     inputFilePath match {
       case Success(filePath) => parseLawn(filePath)
       case Failure(error) => {
-        ErrorLogger.log(error)
+        Logger.logError(error)
         Failure(error)
       }
     }
   }
 
   Tlawn match {
-    case Success(lawn) => lawn.execMowers()
-    case Failure(exception) => ErrorLogger.log(exception)
+    case Success(lawn) =>
+      val res = lawn.execMowers()
+      res match {
+        case Left(value) => {
+          for (instructionError: InstructionError <- value) {
+            Logger.logError(instructionError)
+          }
+        }
+        case Right(_) => Logger.log("Aucune erreur lors de l'execution des instructions")
+      }
+    case Failure(exception) => Logger.logError(exception)
   }
 
   def parseLawn(filePath: String): Try[Lawn] = {

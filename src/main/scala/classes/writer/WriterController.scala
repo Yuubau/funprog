@@ -1,8 +1,8 @@
 package classes.writer
 
 import classes.domain.LawnHistory
+import classes.logger.Logger
 import conf.AppConfiguration
-import errors.ErrorLogger
 
 import scala.util.{Failure, Success}
 
@@ -15,7 +15,7 @@ object WriterController {
           AppConfiguration.getJsonOutputPath match {
             case Success(value) => Some(JsonWriter(value))
             case Failure(exception) => {
-              ErrorLogger.log(exception)
+              Logger.logError(exception)
               None
             }
           }
@@ -23,7 +23,7 @@ object WriterController {
         else None
       }
       case Failure(exception) => {
-        ErrorLogger.log(exception)
+        Logger.logError(exception)
         None
       }
     }
@@ -36,7 +36,7 @@ object WriterController {
           AppConfiguration.getCsvOutputPath match {
             case Success(value) => Some(CsvWriter(value))
             case Failure(exception) => {
-              ErrorLogger.log(exception)
+              Logger.logError(exception)
               None
             }
           }
@@ -44,7 +44,7 @@ object WriterController {
         else None
       }
       case Failure(exception) => {
-        ErrorLogger.log(exception)
+        Logger.logError(exception)
         None
       }
     }
@@ -57,7 +57,7 @@ object WriterController {
           AppConfiguration.getYamlOutputPath match {
             case Success(value) => Some(YamlWriter(value))
             case Failure(exception) => {
-              ErrorLogger.log(exception)
+              Logger.logError(exception)
               None
             }
           }
@@ -65,7 +65,7 @@ object WriterController {
         else None
       }
       case Failure(exception) => {
-        ErrorLogger.log(exception)
+        Logger.logError(exception)
         None
       }
     }
