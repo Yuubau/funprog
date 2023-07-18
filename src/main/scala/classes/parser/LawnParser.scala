@@ -51,11 +51,11 @@ class LawnParser() {
     val instructions : Option[String] = lines.lift(1)
     (initialPosition,instructions) match {
       case (Some(position), Some(inst))=>
-        val xPosition : Option[Int] = position.headOption.flatMap(x => Option(x.toInt))
-        val yPosition : Option[Int] = position.lift(1).flatMap(y => Option(y.toInt))
-        val orientation : Option[Char] = Option(position(2)(0))
+        val xPosition : Try[Option[Int]] = Try(position.headOption.flatMap(x => Option(x.toInt)))
+        val yPosition : Try[Option[Int]] = Try(position.lift(1).flatMap(y => Option(y.toInt)))
+        val orientation : Try[Option[Char]] = Try(position.lift(2).flatMap(_.headOption))
         (xPosition,yPosition,orientation,inst) match {
-          case (Some(x), Some(y),Some(o),i) => Option(Mower(Position(x, y), o,i))
+          case (Success(Some(x)), Success(Some(y)),Success(Some(o)),i) => Option(Mower(Position(x, y), o,i))
           case _ => None
         }
       case _ => None
