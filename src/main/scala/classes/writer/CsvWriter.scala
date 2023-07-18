@@ -1,6 +1,7 @@
 package classes.writer
 import classes.domain.LawnHistory
 
+
 class CsvWriter(fileName: String) extends FileWriter(fileName) {
 
   override def writeHeader(): Unit = {
@@ -8,11 +9,28 @@ class CsvWriter(fileName: String) extends FileWriter(fileName) {
     ()
   }
 
-  override def writeLawnHistory(lawnHistory: LawnHistory): Unit = {}
 
-  override def writeFooter(): Unit = {}
+  override def writeLawnHistory(lawnHistory: LawnHistory): Unit = {
+    for(i <- lawnHistory.oldMowers.indices) {
+      file.appendLine((i + 1).toString + ";" + lawnHistory.oldMowers(i).position.x.toString
+        + ";" + lawnHistory.oldMowers(i).position.y.toString
+        + ";" + lawnHistory.oldMowers(i).orientation.toString
+        + ";" + lawnHistory.newMowers(i).position.x.toString
+        + ";" + lawnHistory.newMowers(i).position.y.toString
+        + ";" + lawnHistory.newMowers(i).orientation.toString
+        + ";" + lawnHistory.oldMowers(i).instructions)
+    }
+
+  }
+
+  override def writeFooter(): Unit = {
+  }
 }
 
 object CsvWriter {
   def apply(fileName: String): CsvWriter = new CsvWriter(fileName)
+
+
 }
+
+
