@@ -12,7 +12,8 @@ class CsvWriter(fileName: String) extends FileWriter(fileName) {
 
   override def writeLawnHistory(lawnHistory: LawnHistory): Unit = {
     for(i <- lawnHistory.oldMowers.indices) {
-      file.appendLine((i + 1).toString + ";" + lawnHistory.oldMowers(i).position.x.toString
+      file.appendLine(
+        (i + 1).toString + ";" + lawnHistory.oldMowers(i).position.x.toString
         + ";" + lawnHistory.oldMowers(i).position.y.toString
         + ";" + lawnHistory.oldMowers(i).orientation.toString
         + ";" + lawnHistory.newMowers(i).position.x.toString

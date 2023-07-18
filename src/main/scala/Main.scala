@@ -3,7 +3,7 @@ import classes.domain.Lawn
 import classes.logger.Logger
 import classes.parser.LawnParser
 import conf.AppConfiguration
-import classes.writer.{WriterController}
+import classes.writer.WriterController
 import errors._
 
 import scala.util.{Failure, Success, Try}
