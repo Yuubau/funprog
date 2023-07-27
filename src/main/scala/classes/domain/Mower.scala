@@ -3,6 +3,8 @@ package classes.domain
 import errors.InstructionError
 import play.api.libs.json.{JsObject, Json, Writes}
 
+import scala.annotation.tailrec
+
 
 case class Mower(
     position: Position,
@@ -11,6 +13,37 @@ case class Mower(
 )
 
 object Mower {
+
+  def execInstructions(mower: Mower, lawnLimite: Position): Either[InstructionError, Mower] = {
+
+    @tailrec
+    def execInstructionsHelper(mower: Mower, instructionsList: List[Char], lawnLimite: Position): Either[InstructionError, Mower] = {
+      instructionsList match {
+        case head :: tail => {
+          val resInstruction = execInstruction(mower, head, lawnLimite);
+          resInstruction match {
+            case Left(value) => Left(value)
+            case Right(value) => execInstructionsHelper(value, tail, lawnLimite)
+          }
+        }
+        case Nil => Right(mower)
+      }
+    }
+
+    execInstructionsHelper(mower, mower.instructions.toList, lawnLimite)
+
+  }
+
+  def execInstruction(mower: Mower, instruction: Char, lawnLimite: Position): Either[InstructionError, Mower] = {
+    instruction match {
+      case 'D' | 'G' => Right(turn(mower, instruction).map(_.copy())).flatten
+      case 'A' => Right(moveForward(mower, lawnLimite).map(_.copy())).flatten
+      case _ =>
+        Left(InstructionError("Invalid Instruction", instruction.toString))
+    }
+  }
+
+
 
   def executeInstructions(mower: Mower, dimensions: Position ): Either[InstructionError, Mower] = {
     mower.instructions.foldLeft[Either[InstructionError, Mower]](Right(mower)) {
@@ -78,7 +111,7 @@ object Mower {
         }else{
           Right(mower)
         }
-      case _ => Left(InstructionError("Invalid Position", newPosition.toString))
+      case Left(_) => Left(InstructionError("Invalid Position", newPosition.toString))
     }
   }
 
