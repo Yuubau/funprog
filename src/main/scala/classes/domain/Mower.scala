@@ -111,7 +111,7 @@ object Mower {
         }else{
           Right(mower)
         }
-      case Left(_) => Left(InstructionError("Invalid Position", newPosition.toString))
+      case Left(_) => Left(InstructionError("Invalid orientation", mower.instructions))
     }
   }
 
