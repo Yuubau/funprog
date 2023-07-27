@@ -9,7 +9,6 @@ abstract class FileWriter(fileName: String) {
 
   def initFile(): Unit = {
     clearFile()
-    writeHeader()
   }
 
   private def clearFile(): Unit = {

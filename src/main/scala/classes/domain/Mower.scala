@@ -43,29 +43,6 @@ object Mower {
     }
   }
 
-
-
-  def executeInstructions(mower: Mower, dimensions: Position ): Either[InstructionError, Mower] = {
-    mower.instructions.foldLeft[Either[InstructionError, Mower]](Right(mower)) {
-      (mowerResult, instruction) =>
-        mowerResult.flatMap { currentMower =>
-          executeInstruction(currentMower, instruction,dimensions)
-        }
-    }
-  }
-
-  private def executeInstruction(
-      mower: Mower,
-      instruction: Char,
-      dimension:Position): Either[InstructionError, Mower] = {
-    instruction match {
-      case 'D' | 'G' => Right(turn(mower, instruction).map(_.copy())).flatten
-      case 'A'       => Right(moveForward(mower,dimension).map(_.copy())).flatten
-      case _ =>
-        Left(InstructionError("Invalid Instruction", instruction.toString))
-    }
-  }
-
   private def turn(
       mower: Mower,
       direction: Char): Either[InstructionError, Mower] = direction match {

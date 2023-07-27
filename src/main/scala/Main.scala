@@ -3,14 +3,11 @@ import classes.domain.Lawn
 import classes.logger.Logger
 import classes.parser.LawnParser
 import conf.AppConfiguration
-import classes.writer.WriterController
 import errors._
 
 import scala.util.{Failure, Success, Try}
 
 object Main extends App {
-
-  WriterController.initWriters()
 
   val inputFilePath: Try[String] = AppConfiguration.getInputFileName
 

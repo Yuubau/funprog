@@ -10,20 +10,21 @@ case class Lawn( dimensions: Position, mowers: List[Mower]) {
     @tailrec
     def processMowers(mowers: List[Mower], updatedMowers: List[Mower]): Either[List[InstructionError], List[Mower]] = {
       mowers match {
-        case Nil => Right(updatedMowers.reverse) // Base case: no more mowers to process, reverse and return the list of updated mowers
+        case Nil => Right(updatedMowers.reverse)
         case mower :: remainingMowers =>
-          Mower.executeInstructions(mower, dimensions) match {
-            case Left(error) => Left(List(error)) // Instruction error, return the error immediately
+          Mower.execInstructions(mower, dimensions) match {
+            case Left(error) => Left(List(error))
             case Right(updatedMower) =>
-              processMowers(remainingMowers, updatedMower :: updatedMowers) // Tail-recursive call, accumulate the updated mower and continue with the remaining mowers
+              processMowers(remainingMowers, updatedMower :: updatedMowers)
           }
       }
     }
 
     processMowers(mowers, Nil) match {
-      case Left(errors) => Left(errors) // If there are errors in processing mowers, return the errors.
+      case Left(errors) => Left(errors)
       case Right(newMowers) =>
         val lawnHistory = LawnHistory(dimensions, mowers, newMowers)
+        WriterController.initWriters()
         WriterController.writeHistory(lawnHistory)
         Right(Lawn(dimensions, newMowers))
     }
